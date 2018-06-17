@@ -9,4 +9,5 @@
     <color name="black">#222222</color>
     <color name="medium_grey">#eeeeee</color>
     <color name="medium_dark_grey">#bdbdbd</color>
+    <color name="light_grey_transparent">#aaeeeeee</color>
 </resources>

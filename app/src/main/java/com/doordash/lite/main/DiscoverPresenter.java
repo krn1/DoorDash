@@ -12,7 +12,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subscribers.DisposableSubscriber;
-import timber.log.Timber;
 
 @PerActivity
 class DiscoverPresenter implements DiscoverContract.Presenter {
@@ -20,6 +19,9 @@ class DiscoverPresenter implements DiscoverContract.Presenter {
     private DiscoverContract.View view;
     private CompositeDisposable disposable;
     private RestApi apiService;
+
+    private static int PAGE_LIMIT = 50;
+    private int pageOffset = 0;
 
     @Inject
     DiscoverPresenter(DiscoverContract.View view,
@@ -32,23 +34,24 @@ class DiscoverPresenter implements DiscoverContract.Presenter {
 
     @Override
     public void start() {
-        getRestaurants();
+        loadRestaurants();
     }
 
     @Override
     public void stop() {
-
+        disposable.clear();
     }
 
-    void getRestaurants() {
-        disposable.add(apiService.getRestaurants("37.422740", "-122.139956", 0, 7)
+    void loadRestaurants() {
+        view.showSpinner();
+        disposable.add(apiService.getRestaurants("37.422740", "-122.139956", pageOffset, PAGE_LIMIT)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSubscriber<List<Restaurant>>() {
                     @Override
-                    public void onNext(List<Restaurant> restaurants) {
-                        Timber.e("We got size %d\n  %s", restaurants.size(), restaurants.toString());
-                        view.showRestaurants(restaurants);
+                    public void onNext(List<Restaurant> restaurantList) {
+//                        Timber.e("We got size %d\n  %s", restaurantList.size(), restaurantList.toString());
+                        onRetrieveComplete(restaurantList);
                     }
 
                     @Override
@@ -61,4 +64,23 @@ class DiscoverPresenter implements DiscoverContract.Presenter {
                     }
                 }));
     }
+
+    private void onRetrieveComplete(List<Restaurant> restaurantList) {
+        view.hideSpinner();
+
+        if (restaurantList.isEmpty()) {
+            view.showError(null);
+            return;
+        }
+
+        if (view.isRefreshing()) {
+            view.refreshFeed(restaurantList);
+        } else {
+            view.showRestaurants(restaurantList);
+        }
+
+        // increment the pageOffset
+        pageOffset++;
+    }
+
 }

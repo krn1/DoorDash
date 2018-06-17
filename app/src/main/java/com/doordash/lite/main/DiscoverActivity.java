@@ -3,8 +3,10 @@ package com.doordash.lite.main;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.airbnb.epoxy.EpoxyRecyclerView;
@@ -12,6 +14,7 @@ import com.doordash.lite.R;
 import com.doordash.lite.app.DoorDashLiteApp;
 import com.doordash.lite.main.epoxy.RestaurantDiscoveryController;
 import com.doordash.repository.model.Restaurant;
+import com.doordash.util.PaginationListenerUtil;
 
 import java.util.List;
 
@@ -32,6 +35,9 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
     @BindView(R.id.empty_view)
     TextView emptyView;
 
+    @BindView(R.id.progress_bar_container)
+    FrameLayout progressBarContainer;
+
     @Inject
     DiscoverPresenter presenter;
 
@@ -46,25 +52,55 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
         setupToolbar();
         setupEpoxy();
         getComponent().inject(this);
-
-        presenter.getRestaurants();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        presenter.start();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        presenter.stop();
+    }
     //region override
 
     @Override
+    public void showSpinner() {
+        progressBarContainer.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideSpinner() {
+        progressBarContainer.setVisibility(View.GONE);
+    }
+
+    @Override
     public void showRestaurants(List<Restaurant> restaurants) {
-        if (!restaurants.isEmpty()) {
-            listController.setContents(restaurants);
-            emptyView.setVisibility(View.GONE);
-        } else {
-            showError(getResources().getString(R.string.empty_list));
-        }
+        listController.addPage(restaurants);
+        emptyView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void refreshFeed(List<Restaurant> restaurants) {
+        //TODO
+    }
+
+    @Override
+    public boolean isRefreshing() {
+        //TODO
+        return false;
     }
 
     @Override
     public void showError(String message) {
         emptyView.setVisibility(View.VISIBLE);
+        hideSpinner();
+        if (message == null) {
+            message = getResources().getString(R.string.empty_list);
+        }
         Timber.e("Error " + message);
     }
 
@@ -82,6 +118,21 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
     private void setupEpoxy() {
         listController = new RestaurantDiscoveryController();
         list.setController(listController);
+
+
+        LinearLayoutManager layoutManager = (LinearLayoutManager) list.getLayoutManager();
+        list.addOnScrollListener(new PaginationListenerUtil(layoutManager, null) {
+            @Override
+            public void loadNextPage() {
+                if (!isLoading()) {
+                    presenter.loadRestaurants();
+                }
+            }
+        });
+    }
+
+    private boolean isLoading() {
+        return progressBarContainer.getVisibility() == View.VISIBLE;
     }
 
     private DiscoverComponent getComponent() {

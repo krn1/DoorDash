@@ -26,8 +26,19 @@ public class RestaurantDiscoveryController extends EpoxyController {
         }
     }
 
-    public void setContents(List<Restaurant> weatherInfoList) {
-        restaurants.addAll(weatherInfoList);
+    public void addPage(List<Restaurant> restaurantList) {
+        restaurants.addAll(restaurantList);
         requestModelBuild();
     }
+
+    public void refreshFeed(List<Restaurant> restaurantList) {
+        clear();
+        addPage(restaurantList);
+    }
+
+    void clear() {
+        restaurants.clear();
+        requestModelBuild();
+    }
+
 }
