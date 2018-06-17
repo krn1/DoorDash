@@ -1,6 +1,7 @@
 package com.doordash.lite.main;
 
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,6 +27,9 @@ import timber.log.Timber;
 
 public class DiscoverActivity extends AppCompatActivity implements DiscoverContract.View {
 
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout pullToRefresh;
+
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
@@ -42,6 +46,7 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
     DiscoverPresenter presenter;
 
     private RestaurantDiscoveryController listController;
+    private LinearLayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +62,7 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
     @Override
     public void onStart() {
         super.onStart();
-        presenter.start();
+        fetchFirstPage();
     }
 
     @Override
@@ -69,7 +74,9 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
 
     @Override
     public void showSpinner() {
-        progressBarContainer.setVisibility(View.VISIBLE);
+        if (!isRefreshing()) {
+            progressBarContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -80,18 +87,20 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
     @Override
     public void showRestaurants(List<Restaurant> restaurants) {
         listController.addPage(restaurants);
+        pullToRefresh.setRefreshing(false);
         emptyView.setVisibility(View.GONE);
     }
 
     @Override
     public void refreshFeed(List<Restaurant> restaurants) {
-        //TODO
+        pullToRefresh.setRefreshing(false);
+        listController.refreshFeed(restaurants);
+        emptyView.setVisibility(View.GONE);
     }
 
     @Override
     public boolean isRefreshing() {
-        //TODO
-        return false;
+        return pullToRefresh.isRefreshing();
     }
 
     @Override
@@ -119,20 +128,31 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
         listController = new RestaurantDiscoveryController();
         list.setController(listController);
 
-
-        LinearLayoutManager layoutManager = (LinearLayoutManager) list.getLayoutManager();
-        list.addOnScrollListener(new PaginationListenerUtil(layoutManager, null) {
+        layoutManager = (LinearLayoutManager) list.getLayoutManager();
+        list.addOnScrollListener(new PaginationListenerUtil(layoutManager, pullToRefresh) {
             @Override
             public void loadNextPage() {
                 if (!isLoading()) {
-                    presenter.loadRestaurants();
+                    presenter.loadMorePages();
                 }
             }
         });
+
+        pullToRefresh.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
+        pullToRefresh.setOnRefreshListener(this::refreshFeed);
     }
 
     private boolean isLoading() {
         return progressBarContainer.getVisibility() == View.VISIBLE;
+    }
+
+    private void refreshFeed() {
+        pullToRefresh.setRefreshing(true);
+        pullToRefresh.postDelayed(this::fetchFirstPage, 1000);
+    }
+
+    private void fetchFirstPage() {
+        presenter.start();
     }
 
     private DiscoverComponent getComponent() {

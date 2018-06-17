@@ -34,7 +34,7 @@ class DiscoverPresenter implements DiscoverContract.Presenter {
 
     @Override
     public void start() {
-        loadRestaurants();
+        loadFirstPage();
     }
 
     @Override
@@ -42,7 +42,14 @@ class DiscoverPresenter implements DiscoverContract.Presenter {
         disposable.clear();
     }
 
-    void loadRestaurants() {
+    @Override
+    public void loadFirstPage() {
+        pageOffset = 0;
+        loadMorePages();
+    }
+
+    @Override
+    public void loadMorePages() {
         view.showSpinner();
         disposable.add(apiService.getRestaurants("37.422740", "-122.139956", pageOffset, PAGE_LIMIT)
                 .subscribeOn(Schedulers.io())
@@ -50,7 +57,7 @@ class DiscoverPresenter implements DiscoverContract.Presenter {
                 .subscribeWith(new DisposableSubscriber<List<Restaurant>>() {
                     @Override
                     public void onNext(List<Restaurant> restaurantList) {
-//                        Timber.e("We got size %d\n  %s", restaurantList.size(), restaurantList.toString());
+                        //                        Timber.e("We got size %d\n  %s", restaurantList.size(), restaurantList.toString());
                         onRetrieveComplete(restaurantList);
                     }
 

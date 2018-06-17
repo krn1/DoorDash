@@ -25,5 +25,8 @@ interface DiscoverContract {
 
         void stop();
 
+        void loadFirstPage();
+
+        void loadMorePages();
     }
 }
