@@ -1,4 +1,4 @@
-package com.doordash.lite;
+package com.doordash.lite.main;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -8,7 +8,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.airbnb.epoxy.EpoxyRecyclerView;
+import com.doordash.lite.R;
 import com.doordash.lite.app.DoorDashLiteApp;
+import com.doordash.lite.main.epoxy.RestaurantDiscoveryController;
 import com.doordash.repository.model.Restaurant;
 
 import java.util.List;
@@ -17,9 +19,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.disposables.CompositeDisposable;
-
-import static android.view.View.GONE;
+import timber.log.Timber;
 
 public class DiscoverActivity extends AppCompatActivity implements DiscoverContract.View {
 
@@ -32,10 +32,10 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
     @BindView(R.id.empty_view)
     TextView emptyView;
 
-    private CompositeDisposable disposable;
-
     @Inject
     DiscoverPresenter presenter;
+
+    private RestaurantDiscoveryController listController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +44,31 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
         ButterKnife.bind(this);
 
         setupToolbar();
+        setupEpoxy();
         getComponent().inject(this);
-        disposable = new CompositeDisposable();
 
         presenter.getRestaurants();
     }
+
+    //region override
+
+    @Override
+    public void showRestaurants(List<Restaurant> restaurants) {
+        if (!restaurants.isEmpty()) {
+            listController.setContents(restaurants);
+            emptyView.setVisibility(View.GONE);
+        } else {
+            showError(getResources().getString(R.string.empty_list));
+        }
+    }
+
+    @Override
+    public void showError(String message) {
+        emptyView.setVisibility(View.VISIBLE);
+        Timber.e("Error " + message);
+    }
+
+    // endregion
 
     // region private
     private void setupToolbar() {
@@ -59,22 +79,16 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
         }
     }
 
+    private void setupEpoxy() {
+        listController = new RestaurantDiscoveryController();
+        list.setController(listController);
+    }
 
     private DiscoverComponent getComponent() {
         return DaggerDiscoverComponent.builder()
                 .applicationComponent(((DoorDashLiteApp) getApplication()).getComponent())
                 .discoverModule(new DiscoverModule(this))
                 .build();
-    }
-
-    @Override
-    public void showRestaurants(List<Restaurant> restaurants) {
-        emptyView.setVisibility(GONE);
-    }
-
-    @Override
-    public void showError(String message) {
-        emptyView.setVisibility(View.VISIBLE);
     }
     // endregion private
 }

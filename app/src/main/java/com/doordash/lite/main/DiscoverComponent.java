@@ -1,7 +1,7 @@
-package com.doordash.lite;
+package com.doordash.lite.main;
 
 import com.doordash.lite.app.ApplicationComponent;
-import com.doordash.lite.dagger.PerActivity;
+import com.doordash.lite.app.dagger.PerActivity;
 
 import dagger.Component;
 

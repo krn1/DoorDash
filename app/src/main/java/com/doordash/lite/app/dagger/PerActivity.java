@@ -1,4 +1,4 @@
-package com.doordash.lite.dagger;
+package com.doordash.lite.app.dagger;
 
 import javax.inject.Scope;
 

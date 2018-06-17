@@ -1,6 +1,6 @@
-package com.doordash.lite;
+package com.doordash.lite.main;
 
-import com.doordash.lite.dagger.PerActivity;
+import com.doordash.lite.app.dagger.PerActivity;
 import com.doordash.repository.model.Restaurant;
 import com.doordash.repository.network.RestApi;
 
@@ -41,13 +41,14 @@ class DiscoverPresenter implements DiscoverContract.Presenter {
     }
 
     void getRestaurants() {
-        disposable.add(apiService.getRestaurants("37.422740", "-122.139956", 0, 25)
+        disposable.add(apiService.getRestaurants("37.422740", "-122.139956", 0, 7)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSubscriber<List<Restaurant>>() {
                     @Override
                     public void onNext(List<Restaurant> restaurants) {
                         Timber.e("We got size %d\n  %s", restaurants.size(), restaurants.toString());
+                        view.showRestaurants(restaurants);
                     }
 
                     @Override

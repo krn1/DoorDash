@@ -1,4 +1,4 @@
-package com.doordash.lite;
+package com.doordash.lite.main;
 
 import com.doordash.repository.model.Restaurant;
 

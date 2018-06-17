@@ -1,12 +1,15 @@
 
 package com.doordash.repository.model;
 
-import java.util.List;
+import android.os.Build;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.List;
+import java.util.Objects;
 
 public class Restaurant {
 
@@ -196,6 +199,8 @@ public class Restaurant {
     }
 
     public String getStatus() {
+//        String[] splited = status.split("\\s+");
+//        return splited[0];
         return status;
     }
 
@@ -367,6 +372,28 @@ public class Restaurant {
     public String toString() {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.toJson(id);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Restaurant that = (Restaurant) o;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            return Objects.equals(id, that.id);
+        } else {
+            return getId() == that.getId();
+        }
+
+    }
+
+    @Override
+    public int hashCode() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            return Objects.hash(id);
+        } else {
+            return Object.class.hashCode();
+        }
     }
 
 }
