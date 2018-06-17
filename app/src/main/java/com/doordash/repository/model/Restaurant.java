@@ -199,8 +199,9 @@ public class Restaurant {
     }
 
     public String getStatus() {
-//        String[] splited = status.split("\\s+");
-//        return splited[0];
+        if(status.contains("Pre-order")){
+            return "Pre-order";
+        }
         return status;
     }
 
