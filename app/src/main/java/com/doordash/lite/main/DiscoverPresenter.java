@@ -1,5 +1,7 @@
 package com.doordash.lite.main;
 
+import android.support.annotation.VisibleForTesting;
+
 import com.doordash.lite.app.dagger.PerActivity;
 import com.doordash.repository.model.Restaurant;
 import com.doordash.repository.network.RestApi;
@@ -21,7 +23,9 @@ class DiscoverPresenter implements DiscoverContract.Presenter {
     private RestApi apiService;
 
     private static int PAGE_LIMIT = 50;
-    private int pageOffset = 0;
+
+    @VisibleForTesting
+    int pageOffset = 0;
 
     @Inject
     DiscoverPresenter(DiscoverContract.View view,

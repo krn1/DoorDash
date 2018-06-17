@@ -13,7 +13,6 @@ import com.facebook.drawee.view.SimpleDraweeView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import timber.log.Timber;
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
 class RestaurantListItem extends FrameLayout {
@@ -37,7 +36,6 @@ class RestaurantListItem extends FrameLayout {
 
     @ModelProp
     public void setContent(@NonNull Restaurant restaurant) {
-        Timber.e("\nstatus "+restaurant.getStatus());
         coverImg.setImageURI(restaurant.getCoverImgUrl());
         name.setText(restaurant.getName());
         kind.setText(restaurant.getDescription());
