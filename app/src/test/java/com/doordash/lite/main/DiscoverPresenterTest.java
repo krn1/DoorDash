@@ -19,6 +19,7 @@ import io.reactivex.Flowable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
+import static junit.framework.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -61,7 +62,6 @@ public class DiscoverPresenterTest {
         verify(disposable, times(1)).add(any(Disposable.class));
         verify(view, times(0)).showRestaurants(emptyList);
         verify(view, times(1)).showError(null);
-
     }
 
     @Test
@@ -74,9 +74,11 @@ public class DiscoverPresenterTest {
         presenter.start();
 
         // Then
+        verify(view, times(1)).showSpinner();
+        verify(view, times(1)).hideSpinner();
         verify(disposable, times(1)).add(any(Disposable.class));
         verify(view, times(1)).showRestaurants(firstPage);
-
+        assertEquals(presenter.pageOffset, 1);
     }
 
     @Test
@@ -92,9 +94,24 @@ public class DiscoverPresenterTest {
         // Then
         verify(disposable, times(1)).add(any(Disposable.class));
         verify(view, times(1)).showRestaurants(list);
-
+        assertEquals(presenter.pageOffset, 3);
     }
 
+    @Test
+    public void pullToRefresh() throws Exception {
+        // Given
+        List<Restaurant> firstPage = createRestaurantList(6);
+        when(apiService.getRestaurants("37.422740", "-122.139956", 0, 50)).thenReturn(Flowable.just(firstPage));
+        when(view.isRefreshing()).thenReturn(true);
+        // When
+        presenter.start();
+
+        // Then
+        verify(view, times(1)).showSpinner();
+        verify(view, times(1)).hideSpinner();
+        verify(view, times(1)).refreshFeed(firstPage);
+        assertEquals(presenter.pageOffset, 1);
+    }
     // region private
     private List<Restaurant> createRestaurantList(int size) {
         List<Restaurant> restaurantList = new ArrayList<>();

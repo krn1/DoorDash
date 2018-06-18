@@ -9,6 +9,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.airbnb.epoxy.EpoxyRecyclerView;
 import com.doordash.lite.R;
@@ -23,7 +24,6 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import timber.log.Timber;
 
 public class DiscoverActivity extends AppCompatActivity implements DiscoverContract.View {
 
@@ -108,9 +108,11 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
         emptyView.setVisibility(View.VISIBLE);
         hideSpinner();
         if (message == null) {
-            message = getResources().getString(R.string.empty_list);
+            message = getResources().getString(R.string.error_msg);
         }
-        Timber.e("Error " + message);
+
+        Toast toast = Toast.makeText(this, message, Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     // endregion

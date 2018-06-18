@@ -3,4 +3,5 @@
     <!--Discovery Activity-->
     <string name="empty_list">Something went wrong!! Check your internet connection </string>
     <string name="discover_title">Discover</string>
+    <string name="error_msg">Please pull to refresh! </string>
 </resources>
