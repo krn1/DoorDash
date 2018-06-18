@@ -106,6 +106,7 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
     @Override
     public void showError(String message) {
         emptyView.setVisibility(View.VISIBLE);
+        list.setVisibility(View.GONE);
         hideSpinner();
         if (message == null) {
             message = getResources().getString(R.string.error_msg);
@@ -127,6 +128,8 @@ public class DiscoverActivity extends AppCompatActivity implements DiscoverContr
     }
 
     private void setupEpoxy() {
+        list.setVisibility(View.VISIBLE);
+        emptyView.setVisibility(View.GONE);
         listController = new RestaurantDiscoveryController();
         list.setController(listController);
 
