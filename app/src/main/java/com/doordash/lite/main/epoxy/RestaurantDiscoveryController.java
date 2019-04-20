@@ -22,6 +22,7 @@ public class RestaurantDiscoveryController extends EpoxyController {
             new RestaurantListItemModel_()
                     .id(restaurant.getId())
                     .content(restaurant)
+                    .favorite(true)
                     .addTo(this);
         }
     }

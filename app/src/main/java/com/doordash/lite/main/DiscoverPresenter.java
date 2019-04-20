@@ -1,6 +1,5 @@
 package com.doordash.lite.main;
 
-import android.support.annotation.VisibleForTesting;
 
 import com.doordash.lite.app.dagger.PerActivity;
 import com.doordash.repository.model.Restaurant;
@@ -10,6 +9,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.annotation.VisibleForTesting;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;

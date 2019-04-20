@@ -45,7 +45,7 @@ public class DiscoverPresenterTest {
     @Before
     public void setUp() throws Exception {
         disposable = spy(new CompositeDisposable());
-        ;
+
         presenter = new DiscoverPresenter(view, apiService, disposable);
     }
 
@@ -53,6 +53,7 @@ public class DiscoverPresenterTest {
     public void emptyList() throws Exception {
         // Given
         List<Restaurant> emptyList = Collections.emptyList();
+
         when(apiService.getRestaurants("37.422740", "-122.139956", 0, 50)).thenReturn(Flowable.just(emptyList));
 
         // When
